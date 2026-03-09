@@ -3,7 +3,7 @@ name: Build APK
 on:
     push:
         branches:
-            - main # runs when you push to main
+            - master # runs when you push to main
     workflow_dispatch: # also allows manual trigger
 
 jobs:

@@ -6,6 +6,9 @@ on:
             - master
     workflow_dispatch:
 
+permissions:
+    contents: write
+
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -95,3 +98,4 @@ jobs:
                   files: frontend/android/app/build/outputs/apk/debug/jithub-v${{ steps.version.outputs.version }}.apk
                   prerelease: false
                   make_latest: true
+                  overwrite_files: true

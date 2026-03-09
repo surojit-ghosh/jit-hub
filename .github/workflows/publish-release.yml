@@ -1,0 +1,123 @@
+name: Publish Release
+
+# Triggers when you push a version tag, e.g.: git tag v1.0.0 && git push --tags
+on:
+    push:
+        tags:
+            - "v*"
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: "Release tag (e.g. v1.0.0)"
+                required: true
+
+permissions:
+    contents: write # required to create GitHub Releases
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+
+        steps:
+            # 1. Checkout
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # 2. Setup pnpm before Node so cache works correctly
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+
+            # 3. Setup Node.js with pnpm cache
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "pnpm"
+                  cache-dependency-path: frontend/pnpm-lock.yaml
+
+            # 4. Install dependencies
+            - name: Install dependencies
+              working-directory: frontend
+              run: pnpm install --frozen-lockfile
+
+            # 5. Build the web assets
+            - name: Build frontend
+              working-directory: frontend
+              run: pnpm build
+
+            # 6. Setup Java
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "temurin"
+                  java-version: "17"
+
+            # 7. Setup Android SDK
+            - name: Setup Android SDK
+              uses: android-actions/setup-android@v3
+
+            # 8. Sync Capacitor web assets into Android project
+            - name: Sync Capacitor
+              working-directory: frontend
+              run: npx cap sync android
+
+            # 9. Make gradlew executable
+            - name: Make gradlew executable
+              working-directory: frontend/android
+              run: chmod +x gradlew
+
+            # 10. Decode keystore from secret and write it to disk
+            #     Requires the following repository secrets to be set:
+            #       KEYSTORE_FILE      – base64-encoded .jks / .keystore file
+            #                           Generate with: base64 -w 0 my-release.keystore
+            #       KEYSTORE_PASSWORD  – store password
+            #       KEY_ALIAS          – key alias inside the keystore
+            #       KEY_PASSWORD       – key password
+            - name: Decode keystore
+              run: |
+                  echo "${{ secrets.KEYSTORE_FILE }}" | base64 --decode > frontend/android/app/release.keystore
+
+            # 11. Build signed release APK
+            - name: Build release APK
+              working-directory: frontend/android
+              env:
+                  KEYSTORE_PATH: ${{ github.workspace }}/frontend/android/app/release.keystore
+                  KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+                  KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+                  KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+              run: |
+                  ./gradlew assembleRelease \
+                    -Pandroid.injected.signing.store.file="$KEYSTORE_PATH" \
+                    -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
+                    -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+                    -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
+
+            # 12. Rename APK to include the version tag
+            - name: Rename APK
+              run: |
+                  TAG="${{ github.ref_name }}"
+                  # Support manual trigger where tag comes from input
+                  if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+                    TAG="${{ github.event.inputs.tag }}"
+                  fi
+                  mv frontend/android/app/build/outputs/apk/release/app-release.apk \
+                     "jithub-${TAG}.apk"
+
+            # 13. Create GitHub Release and attach the APK
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: ${{ github.ref_name != 'main' && github.ref_name || github.event.inputs.tag }}
+                  name: "Jit Hub ${{ github.ref_name != 'main' && github.ref_name || github.event.inputs.tag }}"
+                  body: |
+                      ## What's new
+                      See the commit history for changes in this release.
+
+                      ### Installation
+                      Download the APK below and install it on your Android device.
+                      You may need to enable "Install from unknown sources" in your device settings.
+                  files: "jithub-*.apk"
+                  draft: false
+                  prerelease: ${{ contains(github.ref_name, '-') || contains(github.event.inputs.tag, '-') }}

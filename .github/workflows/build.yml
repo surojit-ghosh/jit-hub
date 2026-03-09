@@ -1,0 +1,97 @@
+name: Build APK
+
+on:
+    push:
+        branches:
+            - master
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+                  cache: "pnpm"
+                  cache-dependency-path: frontend/pnpm-lock.yaml
+
+            - name: Install dependencies
+              working-directory: frontend
+              run: pnpm install --frozen-lockfile
+
+            # ✅ Read version from package.json
+            - name: Get version
+              id: version
+              run: |
+                  VERSION=$(node -p "require('./frontend/package.json').version")
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  echo "Building Jit Hub v$VERSION"
+
+            - name: Build frontend
+              working-directory: frontend
+              run: pnpm build
+
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "temurin"
+                  java-version: "21"
+
+            - name: Setup Android SDK
+              uses: android-actions/setup-android@v3
+
+            - name: Sync Capacitor
+              working-directory: frontend
+              run: npx cap sync android
+
+            - name: Make gradlew executable
+              working-directory: frontend/android
+              run: chmod +x gradlew
+
+            - name: Build APK
+              working-directory: frontend/android
+              run: ./gradlew assembleDebug
+
+            # ✅ Rename APK with version from package.json
+            - name: Rename APK
+              run: |
+                  mv frontend/android/app/build/outputs/apk/debug/app-debug.apk \
+                     frontend/android/app/build/outputs/apk/debug/jithub-v${{ steps.version.outputs.version }}.apk
+
+            - name: Upload APK artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: jithub-v${{ steps.version.outputs.version }}.apk
+                  path: frontend/android/app/build/outputs/apk/debug/jithub-v${{ steps.version.outputs.version }}.apk
+                  retention-days: 30
+
+            # ✅ Publish to GitHub Releases
+            - name: Release APK
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: v${{ steps.version.outputs.version }}
+                  name: Jit Hub v${{ steps.version.outputs.version }}
+                  body: |
+                      ## Jit Hub v${{ steps.version.outputs.version }}
+
+                      **Commit:** ${{ github.event.head_commit.message }}
+                      **Built at:** ${{ github.event.head_commit.timestamp }}
+
+                      ### How to install
+                      1. Download `jithub-v${{ steps.version.outputs.version }}.apk` below
+                      2. On your phone → Settings → Allow unknown sources
+                      3. Open APK → Install
+                  files: frontend/android/app/build/outputs/apk/debug/jithub-v${{ steps.version.outputs.version }}.apk
+                  prerelease: false
+                  make_latest: true

@@ -43,11 +43,6 @@ jobs:
             - name: Setup Android SDK
               uses: android-actions/setup-android@v3
 
-            # ✅ Add this
-            - name: Add Android platform
-              working-directory: frontend
-              run: npx cap add android
-
             - name: Sync Capacitor
               working-directory: frontend
               run: npx cap sync android

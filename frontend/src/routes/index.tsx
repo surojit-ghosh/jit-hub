@@ -1,541 +1,394 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-    GitBranch,
-    GitPullRequest,
-    Star,
-    Bell,
-    Search,
-    ChevronRight,
-    Flame,
-    Clock,
+	ArrowUpRight,
+	CheckSquare,
+	FolderKanban,
+	Sparkles,
+	StickyNote,
+	Target,
+	TrendingUp,
+	Wallet,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: HomePage });
 
-const repos = [
-    {
-        name: "jit-hub",
-        lang: "TypeScript",
-        stars: 12,
-        updated: "2h ago",
-        open: 3,
-    },
-    { name: "api-server", lang: "Go", stars: 8, updated: "1d ago", open: 1 },
-    { name: "mobile-ui", lang: "Kotlin", stars: 5, updated: "3d ago", open: 0 },
-];
-
-const activity = [
-    {
-        icon: GitPullRequest,
-        label: "Merged PR #42 in jit-hub",
-        time: "30m ago",
-        accent: "var(--lagoon)",
-    },
-    {
-        icon: GitBranch,
-        label: "Pushed to feature/auth",
-        time: "2h ago",
-        accent: "var(--palm)",
-    },
-    {
-        icon: Star,
-        label: "Starred tanstack/router",
-        time: "5h ago",
-        accent: "#d97706",
-    },
-];
-
-const langColor: Record<string, string> = {
-    TypeScript: "#3178c6",
-    Go: "#00add8",
-    Kotlin: "#7f52ff",
+const greeting = () => {
+	const h = new Date().getHours();
+	if (h < 12) return "Good morning";
+	if (h < 17) return "Good afternoon";
+	return "Good evening";
 };
 
+const quickStats = [
+	{ label: "Balance", value: "₹24,500", trend: "+12%", positive: true },
+	{ label: "Tasks done", value: "8/12", trend: "today", positive: true },
+	{ label: "Projects", value: "3", trend: "active", positive: true },
+];
+
+const features = [
+	{
+		icon: Wallet,
+		label: "Expenses",
+		desc: "Track spending",
+		to: "/expenses",
+		color: "#16a34a",
+		bg: "#f0fdf4",
+		border: "#bbf7d0",
+	},
+	{
+		icon: TrendingUp,
+		label: "Income",
+		desc: "Monitor earnings",
+		to: "/income",
+		color: "#0d9488",
+		bg: "#f0fdfa",
+		border: "#99f6e4",
+	},
+	{
+		icon: CheckSquare,
+		label: "Tasks",
+		desc: "Stay on top",
+		to: "/tasks",
+		color: "#65a30d",
+		bg: "#f7fee7",
+		border: "#d9f99d",
+	},
+	{
+		icon: FolderKanban,
+		label: "Projects",
+		desc: "Manage work",
+		to: "/projects",
+		color: "#ca8a04",
+		bg: "#fefce8",
+		border: "#fef08a",
+	},
+	{
+		icon: StickyNote,
+		label: "Notes",
+		desc: "Capture ideas",
+		to: "/notes",
+		color: "#9333ea",
+		bg: "#faf5ff",
+		border: "#e9d5ff",
+	},
+	{
+		icon: Target,
+		label: "Goals",
+		desc: "Dream big",
+		to: "/goals",
+		color: "#dc2626",
+		bg: "#fff1f2",
+		border: "#fecdd3",
+	},
+];
+
+const recent = [
+	{
+		label: "Paid electricity bill",
+		amount: "-₹1,200",
+		positive: false,
+		time: "2h ago",
+	},
+	{
+		label: "Freelance payment",
+		amount: "+₹8,000",
+		positive: true,
+		time: "Yesterday",
+	},
+	{
+		label: "Grocery shopping",
+		amount: "-₹640",
+		positive: false,
+		time: "Yesterday",
+	},
+];
+
 function HomePage() {
-    return (
-        <div
-            style={{
-                background: "var(--bg-base)",
-                minHeight: "100dvh",
-                color: "var(--sea-ink)",
-            }}
-        >
-            {/* ── Header ── */}
-            <header
-                style={{
-                    background: "var(--header-bg)",
-                    backdropFilter: "blur(14px)",
-                    borderBottom: "1px solid var(--line)",
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 10,
-                    padding: "0 16px",
-                    height: 56,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                }}
-            >
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <div
-                        style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 10,
-                            background:
-                                "linear-gradient(135deg, var(--lagoon), var(--palm))",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                    >
-                        <GitBranch size={16} color="#fff" strokeWidth={2.5} />
-                    </div>
-                    <span
-                        style={{
-                            fontFamily: "Fraunces, serif",
-                            fontWeight: 700,
-                            fontSize: 18,
-                            letterSpacing: "-0.01em",
-                        }}
-                    >
-                        Jit Hub
-                    </span>
-                </div>
-                <div style={{ display: "flex", gap: 4 }}>
-                    <IconBtn>
-                        <Search size={18} />
-                    </IconBtn>
-                    <IconBtn>
-                        <Bell size={18} />
-                    </IconBtn>
-                    <div
-                        style={{
-                            width: 30,
-                            height: 30,
-                            borderRadius: "50%",
-                            background:
-                                "linear-gradient(135deg, var(--lagoon-deep), var(--palm))",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 12,
-                            fontWeight: 700,
-                            color: "#fff",
-                        }}
-                    >
-                        S
-                    </div>
-                </div>
-            </header>
+	return (
+		<div
+			style={{
+				minHeight: "100dvh",
+				background:
+					"linear-gradient(160deg, #f0fdf4 0%, #fafff7 40%, #fffbf0 100%)",
+				color: "#14532d",
+				fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+				paddingBottom: 80,
+			}}
+		>
+			{/* Google Fonts */}
+			<style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-            <main
-                style={{
-                    padding: "0 16px 96px",
-                    maxWidth: 480,
-                    margin: "0 auto",
-                }}
-            >
-                {/* ── Greeting ── */}
-                <section style={{ paddingTop: 24, paddingBottom: 8 }}>
-                    <p
-                        style={{
-                            margin: 0,
-                            fontSize: 13,
-                            color: "var(--sea-ink-soft)",
-                            fontWeight: 500,
-                        }}
-                    >
-                        Good morning 👋
-                    </p>
-                    <h1
-                        style={{
-                            margin: "2px 0 0",
-                            fontFamily: "Fraunces, serif",
-                            fontWeight: 700,
-                            fontSize: 26,
-                            letterSpacing: "-0.02em",
-                            lineHeight: 1.2,
-                        }}
-                    >
-                        What are you
-                        <br />
-                        shipping today?
-                    </h1>
-                </section>
+                @keyframes fadeUp {
+                    from { opacity: 0; transform: translateY(16px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .fade-up { animation: fadeUp 0.5s ease both; }
+                .fade-up-1 { animation-delay: 0.05s; }
+                .fade-up-2 { animation-delay: 0.1s; }
+                .fade-up-3 { animation-delay: 0.15s; }
+                .fade-up-4 { animation-delay: 0.2s; }
 
-                {/* ── Stats strip ── */}
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr 1fr",
-                        gap: 10,
-                        margin: "20px 0",
-                    }}
-                >
-                    {[
-                        { label: "Repos", value: "3" },
-                        { label: "Open PRs", value: "4" },
-                        { label: "Stars", value: "25" },
-                    ].map((s) => (
-                        <div
-                            key={s.label}
-                            style={{
-                                background: "var(--surface)",
-                                border: "1px solid var(--line)",
-                                borderRadius: 14,
-                                padding: "12px 10px",
-                                textAlign: "center",
-                                backdropFilter: "blur(8px)",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    fontSize: 20,
-                                    fontWeight: 800,
-                                    fontFamily: "Fraunces, serif",
-                                }}
-                            >
-                                {s.value}
-                            </div>
-                            <div
-                                style={{
-                                    fontSize: 11,
-                                    color: "var(--sea-ink-soft)",
-                                    marginTop: 2,
-                                    fontWeight: 500,
-                                }}
-                            >
-                                {s.label}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                .feature-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(22,163,74,0.12); }
+                .feature-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+            `}</style>
 
-                {/* ── Repositories ── */}
-                <SectionHeader
-                    title="Repositories"
-                    icon={<Flame size={14} />}
-                />
-                <div
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 10,
-                        marginBottom: 28,
-                    }}
-                >
-                    {repos.map((r) => (
-                        <div
-                            key={r.name}
-                            style={{
-                                background: "var(--surface)",
-                                border: "1px solid var(--line)",
-                                borderRadius: 16,
-                                padding: "14px 16px",
-                                backdropFilter: "blur(8px)",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 12,
-                                cursor: "pointer",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: 40,
-                                    height: 40,
-                                    borderRadius: 12,
-                                    flexShrink: 0,
-                                    background:
-                                        "linear-gradient(135deg, var(--hero-a), var(--hero-b))",
-                                    border: "1px solid var(--line)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                }}
-                            >
-                                <GitBranch size={16} color="var(--lagoon)" />
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <div
-                                    style={{
-                                        fontWeight: 700,
-                                        fontSize: 14,
-                                        marginBottom: 4,
-                                        overflow: "hidden",
-                                        textOverflow: "ellipsis",
-                                        whiteSpace: "nowrap",
-                                    }}
-                                >
-                                    {r.name}
-                                </div>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: 10,
-                                        fontSize: 11,
-                                        color: "var(--sea-ink-soft)",
-                                    }}
-                                >
-                                    <span
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 4,
-                                        }}
-                                    >
-                                        <span
-                                            style={{
-                                                width: 8,
-                                                height: 8,
-                                                borderRadius: "50%",
-                                                background:
-                                                    langColor[r.lang] ?? "#888",
-                                                display: "inline-block",
-                                            }}
-                                        />
-                                        {r.lang}
-                                    </span>
-                                    <span
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 3,
-                                        }}
-                                    >
-                                        <Star size={10} /> {r.stars}
-                                    </span>
-                                    <span
-                                        style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 3,
-                                        }}
-                                    >
-                                        <GitPullRequest size={10} /> {r.open}
-                                    </span>
-                                </div>
-                            </div>
-                            <div
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "flex-end",
-                                    gap: 4,
-                                    flexShrink: 0,
-                                }}
-                            >
-                                <span
-                                    style={{
-                                        fontSize: 10,
-                                        color: "var(--sea-ink-soft)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: 3,
-                                    }}
-                                >
-                                    <Clock size={9} /> {r.updated}
-                                </span>
-                                <ChevronRight
-                                    size={14}
-                                    color="var(--sea-ink-soft)"
-                                />
-                            </div>
-                        </div>
-                    ))}
-                </div>
+			<main style={{ padding: "0 20px", maxWidth: 500, margin: "0 auto" }}>
+				{/* ── Greeting ── */}
+				<section
+					className="fade-up fade-up-1"
+					style={{ paddingTop: 28, paddingBottom: 4 }}
+				>
+					<div
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: 6,
+							fontSize: 13,
+							color: "#16a34a",
+							fontWeight: 600,
+							marginBottom: 4,
+						}}
+					>
+						<Sparkles size={13} />
+						{greeting()}, Surojit
+					</div>
+					<h1
+						style={{
+							margin: 0,
+							fontFamily: "'Playfair Display', serif",
+							fontWeight: 800,
+							fontSize: 28,
+							color: "#14532d",
+							lineHeight: 1.25,
+							letterSpacing: "-0.02em",
+						}}
+					>
+						Your life,
+						<br />
+						<span style={{ color: "#16a34a" }}>organized.</span>
+					</h1>
+				</section>
 
-                {/* ── Recent activity ── */}
-                <SectionHeader
-                    title="Recent activity"
-                    icon={<Clock size={14} />}
-                />
-                <div
-                    style={{
-                        background: "var(--surface)",
-                        border: "1px solid var(--line)",
-                        borderRadius: 16,
-                        overflow: "hidden",
-                        backdropFilter: "blur(8px)",
-                    }}
-                >
-                    {activity.map((a, i) => (
-                        <div
-                            key={i}
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 12,
-                                padding: "13px 16px",
-                                borderBottom:
-                                    i < activity.length - 1
-                                        ? "1px solid var(--line)"
-                                        : "none",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    width: 34,
-                                    height: 34,
-                                    borderRadius: 10,
-                                    flexShrink: 0,
-                                    background: `${a.accent}22`,
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                }}
-                            >
-                                <a.icon size={15} color={a.accent} />
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <div
-                                    style={{
-                                        fontSize: 13,
-                                        fontWeight: 500,
-                                        overflow: "hidden",
-                                        textOverflow: "ellipsis",
-                                        whiteSpace: "nowrap",
-                                    }}
-                                >
-                                    {a.label}
-                                </div>
-                            </div>
-                            <span
-                                style={{
-                                    fontSize: 10,
-                                    color: "var(--sea-ink-soft)",
-                                    flexShrink: 0,
-                                }}
-                            >
-                                {a.time}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-            </main>
+				{/* ── Quick Stats ── */}
+				<div
+					className="fade-up fade-up-2"
+					style={{
+						display: "grid",
+						gridTemplateColumns: "1fr 1fr 1fr",
+						gap: 10,
+						margin: "22px 0",
+					}}
+				>
+					{quickStats.map((s) => (
+						<div
+							key={s.label}
+							style={{
+								background: "#fff",
+								border: "1.5px solid #dcfce7",
+								borderRadius: 16,
+								padding: "14px 10px",
+								textAlign: "center",
+								boxShadow: "0 2px 8px rgba(22,163,74,0.06)",
+							}}
+						>
+							<div
+								style={{
+									fontSize: 18,
+									fontWeight: 800,
+									fontFamily: "'Playfair Display', serif",
+									color: "#14532d",
+									lineHeight: 1,
+								}}
+							>
+								{s.value}
+							</div>
+							<div
+								style={{
+									fontSize: 10,
+									color: "#6b7280",
+									marginTop: 4,
+									fontWeight: 500,
+								}}
+							>
+								{s.label}
+							</div>
+							<div
+								style={{
+									fontSize: 10,
+									color: "#16a34a",
+									fontWeight: 700,
+									marginTop: 2,
+								}}
+							>
+								{s.trend}
+							</div>
+						</div>
+					))}
+				</div>
 
-            {/* ── Bottom nav ── */}
-            <nav
-                style={{
-                    position: "fixed",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: 64,
-                    background: "var(--header-bg)",
-                    backdropFilter: "blur(16px)",
-                    borderTop: "1px solid var(--line)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-around",
-                    paddingBottom: "env(safe-area-inset-bottom)",
-                }}
-            >
-                {[
-                    { icon: Flame, label: "Home", active: true },
-                    { icon: GitBranch, label: "Repos", active: false },
-                    { icon: GitPullRequest, label: "PRs", active: false },
-                    { icon: Bell, label: "Alerts", active: false },
-                ].map((item) => (
-                    <button
-                        key={item.label}
-                        style={{
-                            background: "none",
-                            border: "none",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            gap: 3,
-                            padding: "6px 14px",
-                            borderRadius: 10,
-                            cursor: "pointer",
-                            color: item.active
-                                ? "var(--lagoon)"
-                                : "var(--sea-ink-soft)",
-                        }}
-                    >
-                        <item.icon
-                            size={20}
-                            strokeWidth={item.active ? 2.5 : 1.8}
-                        />
-                        <span
-                            style={{
-                                fontSize: 10,
-                                fontWeight: item.active ? 700 : 400,
-                            }}
-                        >
-                            {item.label}
-                        </span>
-                    </button>
-                ))}
-            </nav>
-        </div>
-    );
+				{/* ── Features Grid ── */}
+				<div className="fade-up fade-up-3">
+					<SectionLabel label="Features" />
+					<div
+						style={{
+							display: "grid",
+							gridTemplateColumns: "1fr 1fr",
+							gap: 12,
+							marginBottom: 28,
+						}}
+					>
+						{features.map((f) => (
+							<Link
+								key={f.label}
+								to={f.to}
+								className="feature-card"
+								style={{
+									background: f.bg,
+									border: `1.5px solid ${f.border}`,
+									borderRadius: 18,
+									padding: "16px",
+									textDecoration: "none",
+									color: "inherit",
+									display: "block",
+								}}
+							>
+								<div
+									style={{
+										width: 40,
+										height: 40,
+										borderRadius: 12,
+										background: "#fff",
+										border: `1.5px solid ${f.border}`,
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										marginBottom: 12,
+										boxShadow: `0 2px 8px ${f.color}18`,
+									}}
+								>
+									<f.icon size={19} color={f.color} strokeWidth={2} />
+								</div>
+								<div
+									style={{
+										fontWeight: 700,
+										fontSize: 14,
+										color: "#14532d",
+										marginBottom: 2,
+									}}
+								>
+									{f.label}
+								</div>
+								<div
+									style={{
+										fontSize: 11,
+										color: "#6b7280",
+										fontWeight: 500,
+									}}
+								>
+									{f.desc}
+								</div>
+							</Link>
+						))}
+					</div>
+				</div>
+
+				{/* ── Recent Transactions ── */}
+				<div className="fade-up fade-up-4">
+					<SectionLabel label="Recent transactions" />
+					<div
+						style={{
+							background: "#fff",
+							border: "1.5px solid #dcfce7",
+							borderRadius: 18,
+							overflow: "hidden",
+							boxShadow: "0 2px 12px rgba(22,163,74,0.06)",
+							marginBottom: 28,
+						}}
+					>
+						{recent.map((r, i) => (
+							<div
+								key={`${r.label}_${i.toString()}`}
+								style={{
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "space-between",
+									padding: "14px 16px",
+									borderBottom:
+										i < recent.length - 1 ? "1px solid #f0fdf4" : "none",
+								}}
+							>
+								<div>
+									<div
+										style={{
+											fontSize: 13,
+											fontWeight: 600,
+											color: "#14532d",
+											marginBottom: 2,
+										}}
+									>
+										{r.label}
+									</div>
+									<div
+										style={{
+											fontSize: 11,
+											color: "#9ca3af",
+										}}
+									>
+										{r.time}
+									</div>
+								</div>
+								<div
+									style={{
+										fontWeight: 700,
+										fontSize: 14,
+										color: r.positive ? "#16a34a" : "#dc2626",
+									}}
+								>
+									{r.amount}
+								</div>
+							</div>
+						))}
+						<button
+							type="button"
+							style={{
+								width: "100%",
+								padding: "13px",
+								background: "#f0fdf4",
+								border: "none",
+								borderTop: "1px solid #dcfce7",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+								gap: 4,
+								fontSize: 12,
+								fontWeight: 700,
+								color: "#16a34a",
+							}}
+						>
+							See all transactions <ArrowUpRight size={13} />
+						</button>
+					</div>
+				</div>
+			</main>
+		</div>
+	);
 }
 
-function IconBtn({ children }: { children: React.ReactNode }) {
-    return (
-        <button
-            style={{
-                background: "none",
-                border: "none",
-                width: 34,
-                height: 34,
-                borderRadius: 10,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                color: "var(--sea-ink)",
-            }}
-        >
-            {children}
-        </button>
-    );
-}
-
-function SectionHeader({
-    title,
-    icon,
-}: {
-    title: string;
-    icon: React.ReactNode;
-}) {
-    return (
-        <div
-            style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: 10,
-            }}
-        >
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    fontWeight: 700,
-                    fontSize: 14,
-                }}
-            >
-                <span style={{ color: "var(--lagoon)" }}>{icon}</span>
-                {title}
-            </div>
-            <button
-                style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: 12,
-                    color: "var(--lagoon)",
-                    fontWeight: 600,
-                    padding: 0,
-                }}
-            >
-                See all
-            </button>
-        </div>
-    );
+function SectionLabel({ label }: { label: string }) {
+	return (
+		<div
+			style={{
+				fontSize: 13,
+				fontWeight: 700,
+				color: "#6b7280",
+				textTransform: "uppercase",
+				letterSpacing: "0.06em",
+				marginBottom: 12,
+			}}
+		>
+			{label}
+		</div>
+	);
 }
